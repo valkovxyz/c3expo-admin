@@ -27,7 +27,7 @@
             contentType="html"
             theme="snow"
             :toolbar="
-                ['bold', 'italic', 'underline', 'strike', {'color': []}, {'background': []}, { 'script': 'sub'}, { 'script': 'super' }]"
+                ['bold', 'italic', 'underline', 'strike', {'color': ['#FFFFFF']}, {'background': []}, { 'script': 'sub'}, { 'script': 'super' }]"
             class="bg-gray-800 text-gray-100 editor-large-text"
             @update:content="handleEditorContentUpdate"
             :options="{
@@ -73,6 +73,8 @@ const props = defineProps({
   }
 })
 
+const isLoading = ref(false)
+
 const emit = defineEmits(['update:modelValue'])
 
 const localTitle = ref('')
@@ -116,6 +118,7 @@ const resetUnsavedChanges = () => {
 
 const updateEditorContent = async () => {
   if (props.modelValue) {
+    isLoading.value = true
     isInternalUpdate.value = true
     try {
       localTitle.value = props.modelValue.title || ''
@@ -135,6 +138,10 @@ const updateEditorContent = async () => {
       }
     } finally {
       isInternalUpdate.value = false
+      // Добавляем небольшую задержку для плавности
+      setTimeout(() => {
+        isLoading.value = false
+      }, 300)
     }
   }
 }

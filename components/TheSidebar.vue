@@ -2,7 +2,7 @@
   <aside class="w-64 bg-gray-900 text-gray-100 h-screen overflow-y-auto transition-all duration-300 ease-in-out border-r border-gray-800">
     <div class="h-16 px-6 border-b border-gray-800 flex items-center">
       <h1 class="text-xl font-semibold text-teal-400 flex items-center">
-        <i class="fas fa-chart-line mr-2"></i>
+        <LayoutDashboard class="w-5 h-5 mr-2" />
         Dashboard
       </h1>
     </div>
@@ -11,13 +11,16 @@
         <div @click="toggleDropdown(index)"
              class="flex items-center justify-between px-6 py-2 cursor-pointer hover:bg-gray-800 transition-all duration-200 ease-in-out group">
           <div class="flex items-center">
-            <i :class="[menu.icon, 'mr-2 text-gray-400 group-hover:text-teal-400 transition-colors duration-200']"></i>
+            <component
+                :is="menu.icon"
+                class="w-5 h-5 mr-2 text-gray-400 group-hover:text-teal-400 transition-colors duration-200"
+            />
             <span class="font-medium group-hover:text-teal-400">{{ menu.title }}</span>
           </div>
-          <i :class="[
-            menu.isOpen ? 'transform rotate-180' : '',
-            'fas fa-chevron-down transition-transform duration-200 text-gray-400 group-hover:text-teal-400'
-          ]"></i>
+          <ChevronDown
+              class="w-4 h-4 transition-transform duration-200 text-gray-400 group-hover:text-teal-400"
+              :class="{ 'transform rotate-180': menu.isOpen }"
+          />
         </div>
         <transition
             enter-active-class="transition-all duration-300 ease-out"
@@ -39,22 +42,24 @@
                     'text-gray-400 hover:text-teal-400': !isActiveRoute(`/topics/${topic.name.toLowerCase()}`)
                   }"
               >
-                <!-- Индикатор активного состояния -->
                 <div
                     v-if="isActiveRoute(`/topics/${topic.name.toLowerCase()}`)"
                     class="absolute left-0 top-0 bottom-0 w-1 bg-teal-400"
                 ></div>
-
-                <!-- Иконка топика -->
-                <i :class="[getTopicIcon(topic.name), 'mr-2 text-current']"></i>
-
+                <component
+                    :is="getTopicIcon(topic.name)"
+                    class="w-4 h-4 mr-2 text-current"
+                />
                 <span class="truncate">{{ formatTopicName(topic.name) }}</span>
               </NuxtLink>
             </template>
             <template v-else>
               <div v-for="item in menu.items" :key="item"
                    class="py-2 pl-12 pr-6 hover:bg-gray-800 transition-all duration-200 ease-in-out cursor-pointer flex items-center text-gray-400 hover:text-teal-400">
-                <i :class="[getMenuItemIcon(item), 'mr-2']"></i>
+                <component
+                    :is="getMenuItemIcon(item)"
+                    class="w-4 h-4 mr-2"
+                />
                 {{ item }}
               </div>
             </template>
@@ -68,6 +73,27 @@
 <script setup>
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
+import {
+  LayoutDashboard,
+  Handshake,
+  BookOpen,
+  FileText,
+  Search,
+  Target,
+  Eye,
+  Building2,
+  UserCircle2,
+  Brain,
+  Globe2,
+  Store,
+  Quote,
+  FileUp,
+  Settings,
+  Tags,
+  Map,
+  Briefcase,
+  ChevronDown
+} from 'lucide-vue-next'
 
 const route = useRoute()
 
@@ -76,25 +102,25 @@ const mainMenu = ref([
     title: 'Jobs',
     isOpen: false,
     items: ['Vacancies'],
-    icon: 'fas fa-handshake-simple'
+    icon: Handshake
   },
   {
     title: 'Topics',
     isOpen: true,
     items: [],
-    icon: 'fas fa-book'
+    icon: BookOpen
   },
   {
     title: 'Documents',
     isOpen: false,
     items: ['Upload', 'Manage'],
-    icon: 'fas fa-file-alt'
+    icon: FileText
   },
   {
     title: 'SEO',
     isOpen: false,
     items: ['Meta Tags', 'Sitemap'],
-    icon: 'fas fa-search'
+    icon: Search
   }
 ])
 
@@ -109,19 +135,18 @@ const topics = ref([
   { name: 'references' }
 ])
 
-// Функция для получения иконки топика на основе его имени
+// Функция для получения иконки топика
 const getTopicIcon = (topicName) => {
   const iconMap = {
-    'our-mission': 'fas fa-bullseye',
-    'our-vision': 'fas fa-eye',
-    'heritage': 'fas fa-landmark',
-    'ceo-statement': 'fas fa-user-tie',
-    'our-expertise': 'fas fa-brain',
-    'world-wide-network': 'fas fa-globe',
-    'exhibition-booth': 'fa fa-curtain',
-    'references': 'fas fa-quote-right',
-    // Дефолтная иконка, если нет соответствия
-    'default': 'fas fa-file-alt'
+    'our-mission': Target,
+    'our-vision': Eye,
+    'heritage': Building2,
+    'ceo-statement': UserCircle2,
+    'our-expertise': Brain,
+    'world-wide-network': Globe2,
+    'exhibition-booth': Store,
+    'references': Quote,
+    'default': FileText
   }
 
   return iconMap[topicName] || iconMap.default
@@ -130,14 +155,12 @@ const getTopicIcon = (topicName) => {
 // Функция для получения иконки пункта меню
 const getMenuItemIcon = (item) => {
   const iconMap = {
-    'Upload': 'fas fa-upload',
-    'Manage': 'fas fa-cog',
-    'Meta Tags': 'fas fa-tags',
-    'Sitemap': 'fas fa-sitemap',
-
-    'Vacancies': 'fas fa-file-invoice',
-    // Дефолтная иконка
-    'default': 'fas fa-circle'
+    'Upload': FileUp,
+    'Manage': Settings,
+    'Meta Tags': Tags,
+    'Sitemap': Map,
+    'Vacancies': Briefcase,
+    'default': FileText
   }
 
   return iconMap[item] || iconMap.default
