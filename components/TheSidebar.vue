@@ -73,6 +73,12 @@ const route = useRoute()
 
 const mainMenu = ref([
   {
+    title: 'Jobs',
+    isOpen: false,
+    items: ['Vacancies'],
+    icon: 'fas fa-handshake-simple'
+  },
+  {
     title: 'Topics',
     isOpen: true,
     items: [],
@@ -112,7 +118,7 @@ const getTopicIcon = (topicName) => {
     'ceo-statement': 'fas fa-user-tie',
     'our-expertise': 'fas fa-brain',
     'world-wide-network': 'fas fa-globe',
-    'exhibition-booth': 'fas fa-booth-curtain',
+    'exhibition-booth': 'fa fa-curtain',
     'references': 'fas fa-quote-right',
     // Дефолтная иконка, если нет соответствия
     'default': 'fas fa-file-alt'
@@ -128,6 +134,8 @@ const getMenuItemIcon = (item) => {
     'Manage': 'fas fa-cog',
     'Meta Tags': 'fas fa-tags',
     'Sitemap': 'fas fa-sitemap',
+
+    'Vacancies': 'fas fa-file-invoice',
     // Дефолтная иконка
     'default': 'fas fa-circle'
   }
