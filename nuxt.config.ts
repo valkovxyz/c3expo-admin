@@ -18,6 +18,8 @@ export default defineNuxtConfig({
   },
   nitro: {
     preset: 'vercel',
+    regions: ['fra1'],
+    plugins: ['~/server/db/mongoose.js']
   },
   typescript: {
     strict: true,
@@ -37,10 +39,5 @@ export default defineNuxtConfig({
   modules: [
     '@nuxtjs/tailwindcss'
   ],
-
-  nitro: {
-    plugins: ['~/server/db/mongoose.js']
-  },
-
   compatibilityDate: '2024-10-22',
 })
