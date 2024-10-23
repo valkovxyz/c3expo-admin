@@ -19,6 +19,10 @@ export default defineNuxtConfig({
   nitro: {
     preset: 'vercel',
   },
+  typescript: {
+    strict: true,
+    typeCheck: false
+  },
   public: {
     apiBase: process.env.NODE_ENV === 'production'
         ? 'https://admin.c3expo.de'
