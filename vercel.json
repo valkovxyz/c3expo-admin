@@ -6,7 +6,8 @@
       "use": "@nuxtjs/vercel-builder",
       "config": {
         "serverFiles": [
-          "server/**"
+          "server/**",
+          "models/**"
         ]
       }
     }
@@ -20,9 +21,5 @@
       "src": "/(.*)",
       "dest": "/"
     }
-  ],
-  "env": {
-    "MONGODB_URI": "@mongodb_uri",
-    "JWT_SECRET": "@jwt_secret"
-  }
+  ]
 }

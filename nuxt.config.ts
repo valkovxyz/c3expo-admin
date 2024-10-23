@@ -17,7 +17,6 @@ export default defineNuxtConfig({
   },
   nitro: {
     preset: 'vercel',
-    regions: ['fra1'],
     plugins: ['~/server/db/mongoose.js']
   },
   typescript: {
