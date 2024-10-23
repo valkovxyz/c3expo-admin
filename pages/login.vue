@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="min-h-screen w-full flex items-center justify-center bg-gray-900 p-4">
     <div
-        class="max-w-md w-full space-y-8 bg-gray-800 p-8 shadow-2xl transform transition-all duration-500"
+        class="max-w-md w-full mx-auto space-y-8 bg-gray-800 p-8 shadow-2xl transform transition-all duration-500"
     >
       <div>
         <h2 class="mt-6 text-center text-3xl font-extrabold text-teal-400">

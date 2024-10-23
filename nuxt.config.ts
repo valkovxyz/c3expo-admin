@@ -1,4 +1,3 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   // Basic configuration
   ssr: true,
@@ -11,7 +10,7 @@ export default defineNuxtConfig({
     mongodbUri: process.env.MONGODB_URI,
     jwtSecret: process.env.JWT_SECRET,
     public: {
-      apiBase: process.env.API_BASE || '/api'
+      apiBase: '/api'
     }
   },
 
@@ -35,12 +34,14 @@ export default defineNuxtConfig({
 
   // Nitro configuration for Vercel
   nitro: {
-    preset: 'vercel_edge',
+    preset: 'vercel'
   },
 
-  // TypeScript configuration
   typescript: {
     strict: true,
-    typeCheck: false
-  }
+    typeCheck: false,
+    shim: false
+  },
+
+  compatibilityDate: '2024-10-23',
 })

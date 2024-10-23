@@ -12,14 +12,8 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.6.0",
     "@nuxtjs/tailwindcss": "^6.12.1",
+    "@nuxtjs/vercel-builder": "^0.24.0",
     "@tailwindcss/forms": "^0.5.9",
-    "@tinymce/tinymce-vue": "^6.0.1",
-    "@tiptap/extension-bubble-menu": "^2.8.0",
-    "@tiptap/extension-color": "^2.8.0",
-    "@tiptap/extension-floating-menu": "^2.8.0",
-    "@tiptap/extension-text-style": "^2.8.0",
-    "@tiptap/starter-kit": "^2.8.0",
-    "@tiptap/vue-3": "^2.8.0",
     "@vueup/vue-quill": "^1.2.0",
     "bcryptjs": "^2.4.3",
     "jsonwebtoken": "^9.0.2",
@@ -34,8 +28,17 @@
     "vue-tinymce-editor": "^1.6.2"
   },
   "devDependencies": {
+    "@nuxt/types": "^2.17.2",
+    "@types/bcryptjs": "^2.4.5",
+    "@types/jsonwebtoken": "^9.0.4",
+    "@types/node": "^18.18.0",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.47",
-    "tailwindcss": "^3.4.13"
+    "tailwindcss": "^3.4.13",
+    "typescript": "^5.2.2",
+    "vue-tsc": "^1.8.22"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
