@@ -74,6 +74,17 @@ definePageMeta({
   middleware: ['auth']
 })
 
+
+
+const { token, isAuthenticated } = useAuth()
+
+// Если пользователь уже авторизован, редиректим на главную
+onMounted(() => {
+  if (isAuthenticated.value) {
+    router.push('/')
+  }
+})
+
 const handleLogin = async () => {
   try {
     const response = await $fetch('/api/auth/login', {

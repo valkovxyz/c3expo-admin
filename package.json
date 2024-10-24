@@ -12,10 +12,12 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.6.0",
     "@nuxtjs/tailwindcss": "^6.12.1",
-    "@nuxtjs/vercel-builder": "^0.24.0",
+    "@nuxtjs/vercel-builder": "^0.25.0",
     "@tailwindcss/forms": "^0.5.9",
+    "@vercel/blob": "^0.25.1",
     "@vueup/vue-quill": "^1.2.0",
     "bcryptjs": "^2.4.3",
+    "formidable": "^3.5.2",
     "jsonwebtoken": "^9.0.2",
     "lucide-vue-next": "^0.453.0",
     "mongoose": "^8.7.1",
@@ -36,7 +38,7 @@
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.13",
     "typescript": "^5.2.2",
-    "vue-tsc": "^1.8.22"
+    "vue-tsc": "^2.1.6"
   },
   "engines": {
     "node": ">=18.0.0"

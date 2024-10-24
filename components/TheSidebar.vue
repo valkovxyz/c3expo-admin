@@ -2,69 +2,88 @@
   <aside class="w-64 bg-gray-900 text-gray-100 h-screen overflow-y-auto transition-all duration-300 ease-in-out border-r border-gray-800">
     <div class="h-16 px-6 border-b border-gray-800 flex items-center">
       <h1 class="text-xl font-semibold text-teal-400 flex items-center">
-        <LayoutDashboard class="w-5 h-5 mr-2" />
+        <ClientOnly>
+          <LayoutDashboard class="w-5 h-5 mr-2" />
+        </ClientOnly>
         Dashboard
       </h1>
     </div>
     <nav class="mt-2">
-      <div v-for="(menu, index) in mainMenu" :key="index" class="mb-2">
+      <div v-for="(menu, index) in mainMenu" :key="menu.title" class="mb-2">
         <div @click="toggleDropdown(index)"
              class="flex items-center justify-between px-6 py-2 cursor-pointer hover:bg-gray-800 transition-all duration-200 ease-in-out group">
           <div class="flex items-center">
-            <component
-                :is="menu.icon"
-                class="w-5 h-5 mr-2 text-gray-400 group-hover:text-teal-400 transition-colors duration-200"
-            />
+            <ClientOnly>
+              <component
+                  :is="menu.icon"
+                  class="w-5 h-5 mr-2 text-gray-400 group-hover:text-teal-400 transition-colors duration-200"
+              />
+            </ClientOnly>
             <span class="font-medium group-hover:text-teal-400">{{ menu.title }}</span>
           </div>
-          <ChevronDown
-              class="w-4 h-4 transition-transform duration-200 text-gray-400 group-hover:text-teal-400"
-              :class="{ 'transform rotate-180': menu.isOpen }"
-          />
+          <ClientOnly>
+            <ChevronDown
+                class="w-4 h-4 transition-transform duration-200 text-gray-400 group-hover:text-teal-400"
+                :class="{ 'transform rotate-180': menu.isOpen }"
+            />
+          </ClientOnly>
         </div>
-        <transition
-            enter-active-class="transition-all duration-300 ease-out"
-            enter-from-class="opacity-0 max-h-0"
-            enter-to-class="opacity-100 max-h-[1000px]"
-            leave-active-class="transition-all duration-300 ease-in"
-            leave-from-class="opacity-100 max-h-[1000px]"
-            leave-to-class="opacity-0 max-h-0"
-        >
-          <div v-show="menu.isOpen" class="overflow-hidden">
+        <div v-show="menu.isOpen"
+             class="overflow-hidden transition-all duration-300"
+             :class="{'max-h-[1000px] opacity-100': menu.isOpen, 'max-h-0 opacity-0': !menu.isOpen}">
+          <div class="py-2">
             <template v-if="menu.title === 'Topics'">
               <NuxtLink
                   v-for="topic in topics"
                   :key="topic.name"
                   :to="`/topics/${topic.name.toLowerCase()}`"
                   class="block py-2 pl-12 pr-6 hover:bg-gray-800 transition-all duration-200 ease-in-out flex items-center group relative"
-                  :class="{
-                    'bg-gray-800 text-teal-400': isActiveRoute(`/topics/${topic.name.toLowerCase()}`),
-                    'text-gray-400 hover:text-teal-400': !isActiveRoute(`/topics/${topic.name.toLowerCase()}`)
-                  }"
+                  :class="getLinkClasses(topic.name)"
               >
                 <div
                     v-if="isActiveRoute(`/topics/${topic.name.toLowerCase()}`)"
                     class="absolute left-0 top-0 bottom-0 w-1 bg-teal-400"
-                ></div>
-                <component
-                    :is="getTopicIcon(topic.name)"
-                    class="w-4 h-4 mr-2 text-current"
                 />
+                <ClientOnly>
+                  <component
+                      :is="getTopicIcon(topic.name)"
+                      class="w-4 h-4 mr-2 text-current"
+                  />
+                </ClientOnly>
                 <span class="truncate">{{ formatTopicName(topic.name) }}</span>
               </NuxtLink>
             </template>
-            <template v-else>
-              <div v-for="item in menu.items" :key="item"
-                   class="py-2 pl-12 pr-6 hover:bg-gray-800 transition-all duration-200 ease-in-out cursor-pointer flex items-center text-gray-400 hover:text-teal-400">
-                <component
-                    :is="getMenuItemIcon(item)"
-                    class="w-4 h-4 mr-2"
+            <template v-else-if="menu.title === 'Files'">
+              <NuxtLink
+                  to="/files"
+                  class="block py-2 pl-12 pr-6 hover:bg-gray-800 transition-all duration-200 ease-in-out flex items-center relative"
+                  :class="getLinkClasses('files')"
+              >
+                <div
+                    v-if="isActiveRoute('/files')"
+                    class="absolute left-0 top-0 bottom-0 w-1 bg-teal-400"
                 />
+                <ClientOnly>
+                  <Settings class="w-4 h-4 mr-2 text-current" />
+                </ClientOnly>
+                <span class="truncate">Manage</span>
+              </NuxtLink>
+            </template>
+            <template v-else>
+              <div v-for="item in menu.items"
+                   :key="item"
+                   class="py-2 pl-12 pr-6 hover:bg-gray-800 transition-all duration-200 ease-in-out cursor-pointer flex items-center text-gray-400 hover:text-teal-400">
+                <ClientOnly>
+                  <component
+                      :is="getMenuItemIcon(item)"
+                      class="w-4 h-4 mr-2"
+                  />
+                </ClientOnly>
                 {{ item }}
               </div>
             </template>
           </div>
-        </transition>
+        </div>
       </div>
     </nav>
   </aside>
@@ -87,7 +106,6 @@ import {
   Globe2,
   Store,
   Quote,
-  FileUp,
   Settings,
   Tags,
   Map,
@@ -111,9 +129,8 @@ const mainMenu = ref([
     icon: BookOpen
   },
   {
-    title: 'Documents',
+    title: 'Files',
     isOpen: false,
-    items: ['Upload', 'Manage'],
     icon: FileText
   },
   {
@@ -125,14 +142,14 @@ const mainMenu = ref([
 ])
 
 const topics = ref([
-  { name: 'our-mission' },
-  { name: 'our-vision' },
-  { name: 'heritage' },
-  { name: 'ceo-statement' },
-  { name: 'our-expertise' },
-  { name: 'world-wide-network' },
-  { name: 'exhibition-booth' },
-  { name: 'references' }
+  {name: 'our-mission'},
+  {name: 'our-vision'},
+  {name: 'heritage'},
+  {name: 'ceo-statement'},
+  {name: 'our-expertise'},
+  {name: 'world-wide-network'},
+  {name: 'exhibition-booth'},
+  {name: 'references'}
 ])
 
 // Функция для получения иконки топика
@@ -155,7 +172,6 @@ const getTopicIcon = (topicName) => {
 // Функция для получения иконки пункта меню
 const getMenuItemIcon = (item) => {
   const iconMap = {
-    'Upload': FileUp,
     'Manage': Settings,
     'Meta Tags': Tags,
     'Sitemap': Map,
@@ -172,6 +188,15 @@ const toggleDropdown = (index) => {
 
 const formatTopicName = (name) => {
   return name.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+}
+
+const getLinkClasses = (name) => {
+  const path = name === 'files' ? '/files' : `/topics/${name.toLowerCase()}`
+  const isActive = isActiveRoute(path)
+  return {
+    'bg-gray-800 text-teal-400': isActive,
+    'text-gray-400 hover:text-teal-400': !isActive
+  }
 }
 
 const isActiveRoute = (path) => {

@@ -1,5 +1,6 @@
 export default defineNuxtConfig({
   // Basic configuration
+
   ssr: true,
 
   // CSS configuration
@@ -9,9 +10,27 @@ export default defineNuxtConfig({
   runtimeConfig: {
     mongodbUri: process.env.MONGODB_URI,
     jwtSecret: process.env.JWT_SECRET,
+    blobReadWriteToken: process.env.BLOB_READ_WRITE_TOKEN,
     public: {
       apiBase: '/api'
     }
+  },
+  cookieControl: {
+    cookies: {
+      necessary: [
+        {
+          name: 'dashboard_token',
+          description: 'Authentication token',
+          cookies: ['dashboard_token']
+        }
+      ]
+    }
+  },
+  routeRules: {
+    // Публичные маршруты
+    '/login': { index: true },
+    // Защищенные маршруты
+    '/**': { middleware: ['auth'] }
   },
 
   // Build configuration

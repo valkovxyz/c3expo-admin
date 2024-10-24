@@ -1,4 +1,3 @@
-// components/TheHeader.vue
 <template>
   <header class="bg-gray-900 border-b border-gray-800">
     <div class="h-16 px-6 flex justify-between items-center">
@@ -29,32 +28,49 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useRouter, useRoute } from '#imports'
-import { useAuth } from '../utils/auth'
+import {computed} from 'vue'
+import {useRouter, useRoute} from '#imports'
 
 const router = useRouter()
 const route = useRoute()
-const { removeToken } = useAuth()
+const token = useCookie('dashboard_token')
 
 const currentPageTitle = computed(() => {
-  // Если есть параметр topicName в маршруте, форматируем его
+  // Для страницы редактирования топика
   if (route.params.topicName) {
-    return `Edit Topic: ${route.params.topicName
-        .split('-')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ')}`
+    return `Edit Topic: ${formatTopicName(route.params.topicName)}`
   }
 
-  // Для остальных страниц используем имя маршрута или значение по умолчанию
-  const routeName = route.name?.toString() || ''
-  return routeName
-      ? routeName.charAt(0).toUpperCase() + routeName.slice(1)
-      : 'Dashboard'
+  // Для страницы файлов
+  if (route.path === '/files') {
+    return 'Document Manager'
+  }
+
+  // Для остальных страниц используем маппинг или значение по умолчанию
+  const routeTitles = {
+    'login': 'Login',
+    'index': 'Dashboard',
+    'topics': 'Topics',
+    'files': 'Document Manager',
+  }
+
+  const routeName = route.name?.toString() || 'index'
+  return routeTitles[routeName] || 'Dashboard'
 })
 
+// Форматирование названия топика
+const formatTopicName = (name) => {
+  return name
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ')
+}
+
+// Обновленная функция logout
 const logout = () => {
-  removeToken()
+  // Удаляем cookie
+  token.value = null
+  // Редиректим на страницу логина
   router.push('/login')
 }
 </script>

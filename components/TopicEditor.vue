@@ -27,7 +27,7 @@
             contentType="html"
             theme="snow"
             :toolbar="
-                ['bold', 'italic', 'underline', 'strike', {'color': ['#FFFFFF']}, {'background': []}, { 'script': 'sub'}, { 'script': 'super' }]"
+                ['bold', 'italic', 'underline', 'strike', {'color': ['#FFFFFF', '#38bdf8']}, {'background': []}, { 'script': 'sub'}, { 'script': 'super' }]"
             class="bg-gray-800 text-gray-100 editor-large-text"
             @update:content="handleEditorContentUpdate"
             :options="{
