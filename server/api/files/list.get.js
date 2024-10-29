@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
         console.error('Error listing files:', error)
         throw createError({
             statusCode: 500,
-            statusMessage: 'Error listing files'
+            statusMessage: error.message || 'Error listing files'
         })
     }
 })

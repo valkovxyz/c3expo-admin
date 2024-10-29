@@ -151,15 +151,23 @@ const uploadFiles = async (filesToUpload) => {
       })
 
       if (!response) {
-        throw new Error('Upload failed')
+        throw new Error('Upload failed - no response')
       }
+
+      console.log('File uploaded successfully:', response)
     } catch (error) {
-      console.error(`Error uploading ${file.name}:`, error)
+      console.error('Upload error details:', {
+        message: error.message,
+        statusCode: error.statusCode,
+        statusMessage: error.statusMessage,
+        data: error.data
+      })
+
       if (error.statusCode === 401) {
         router.push('/login')
         return
       }
-      alert(`Failed to upload ${file.name}`)
+      alert(`Failed to upload ${file.name}: ${error.message || 'Unknown error'}`)
     }
   }
 

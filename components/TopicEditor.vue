@@ -27,7 +27,7 @@
             contentType="html"
             theme="snow"
             :toolbar="
-                ['bold', 'italic', 'underline', 'strike', {'color': ['#FFFFFF', '#38bdf8']}, {'background': []}, { 'script': 'sub'}, { 'script': 'super' }]"
+                ['bold', 'italic', 'underline', 'strike', {'color': ['#36e4da', '#FFFFFF', '#000000', '#e60000', '#ff9900', '#ffff00', '#008a00', '#0066cc', '#9933ff', '#ffa500', '#38bdf8', '#ff66cc', '#c0c0c0']}, {'background': []}, { 'script': 'sub'}, { 'script': 'super' }]"
             class="bg-gray-800 text-gray-100 editor-large-text"
             @update:content="handleEditorContentUpdate"
             :options="{

@@ -3,7 +3,7 @@ import { verifyAuth } from '../../utils/auth'
 import { BlobStorageService } from '../../utils/blob-storage'
 import formidable from 'formidable'
 
-// Создаем функцию для генерации уникального имени файла
+// Функция для генерации уникального имени файла
 const generateUniqueFileName = (originalName = '') => {
     const timestamp = Date.now()
     const random = Math.floor(Math.random() * 1000)
@@ -22,21 +22,17 @@ const generateUniqueFileName = (originalName = '') => {
         .replace(/-+/g, '-')
         .replace(/^-|-$/g, '')
 
-    // Формируем финальное имя
     return `${safeName}-${timestamp}-${random}${ext}`
 }
 
 export default defineEventHandler(async (event) => {
-    // Проверяем авторизацию для загрузки
     const auth = verifyAuth(event)
 
     try {
         const form = formidable({
             keepExtensions: true,
-            maxFileSize: 10 * 1024 * 1024, // 10MB лимит
-            filter: (part) => {
-                return true // Можно добавить фильтрацию по типам файлов
-            }
+            maxFileSize: 10 * 1024 * 1024,
+            multiples: true
         });
 
         const [fields, files] = await form.parse(event.node.req);
@@ -49,9 +45,7 @@ export default defineEventHandler(async (event) => {
             });
         }
 
-        // Создаем безопасное имя файла
         const safeFileName = generateUniqueFileName(file.originalFilename)
-
         const blobService = new BlobStorageService();
         const result = await blobService.uploadFile(file, safeFileName);
 
@@ -65,7 +59,7 @@ export default defineEventHandler(async (event) => {
         console.error('Error handling file upload:', error);
         throw createError({
             statusCode: error.statusCode || 500,
-            statusMessage: error.message || 'Error uploading file'
+            statusMessage: error.message || 'Failed to upload file'
         });
     }
 })

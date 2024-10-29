@@ -1,11 +1,7 @@
 <template>
-  <header class="bg-gray-900 border-b border-gray-800">
+  <header class="bg-gray-900">
     <div class="h-16 px-6 flex justify-between items-center">
       <div class="flex items-center">
-        <h2 class="text-xl font-semibold text-teal-400 flex items-center">
-          <i class="fas fa-columns mr-2"></i>
-          {{ currentPageTitle }}
-        </h2>
       </div>
 
       <div class="flex items-center space-x-4">

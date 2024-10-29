@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
         console.error('Login error:', error);
         throw createError({
             statusCode: 500,
-            statusMessage: 'Error logging in',
+            statusMessage: 'Invalid username or password',
         });
     }
 });
