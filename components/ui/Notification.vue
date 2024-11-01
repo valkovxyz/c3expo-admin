@@ -11,7 +11,7 @@
     <div
         v-show="isVisible"
         :class="[
-        'fixed bottom-4 right-4 p-4 rounded-lg shadow-2xl z-50 backdrop-blur-sm',
+        'fixed bottom-4 right-4 p-4 shadow-2xl z-50 backdrop-blur-sm',
         'border border-opacity-20',
         type === 'success' && 'bg-gray-800/90 border-teal-500 text-teal-400',
         type === 'error' && 'bg-gray-800/90 border-red-500 text-red-400',

@@ -61,6 +61,29 @@
               </NuxtLink>
             </template>
 
+            <!-- Documents Section -->
+            <template v-else-if="menu.title === 'Documents'">
+              <NuxtLink
+                  v-for="item in menu.items"
+                  :key="item"
+                  :to="getItemRoute(item)"
+                  class="block py-2 pl-12 pr-6 hover:bg-gray-800 transition-all duration-200 ease-in-out flex items-center relative"
+                  :class="getLinkClasses(getItemRoute(item))"
+              >
+                <div
+                    v-if="isActiveRoute(getItemRoute(item))"
+                    class="absolute left-0 top-0 bottom-0 w-1 bg-teal-400"
+                />
+                <ClientOnly>
+                  <component
+                      :is="getMenuItemIcon(item)"
+                      class="w-4 h-4 mr-2 text-current"
+                  />
+                </ClientOnly>
+                <span class="truncate">{{ item }}</span>
+              </NuxtLink>
+            </template>
+
             <!-- Files Section -->
             <template v-else-if="menu.title === 'Files'">
               <NuxtLink
@@ -120,7 +143,7 @@
               </NuxtLink>
             </template>
 
-            <!-- Default Section - для будущих разделов -->
+            <!-- Default Section -->
             <template v-else>
               <NuxtLink
                   v-for="item in menu.items"
@@ -154,7 +177,6 @@ import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import {
   LayoutDashboard,
-  Handshake,
   BookOpen,
   FileText,
   Search,
@@ -170,7 +192,10 @@ import {
   Tags,
   Map,
   Briefcase,
-  ChevronDown
+  ChevronDown,
+  Handshake,
+  NotebookTabs,
+  Paperclip
 } from 'lucide-vue-next'
 
 const route = useRoute()
@@ -178,20 +203,32 @@ const route = useRoute()
 // Главное меню
 const mainMenu = ref([
   {
-    title: 'Jobs',
-    isOpen: false,
-    icon: Handshake
-  },
-  {
     title: 'Topics',
     isOpen: true,
     items: [],
     icon: BookOpen
   },
   {
+    title: 'Jobs',
+    isOpen: false,
+    icon: Handshake
+  },
+  {
+    title: 'Documents',
+    isOpen: false,
+    items: ['Manage'],
+    icon: FileText
+  },
+  {
     title: 'Files',
     isOpen: false,
-    icon: FileText
+    icon: Paperclip
+  },
+  {
+    title: 'Footer',
+    isOpen: false,
+    items: ['Edit'],
+    icon: NotebookTabs
   },
   {
     title: 'SEO',
@@ -239,7 +276,9 @@ const menuItemIcons = {
 const itemRoutes = {
   'Meta Tags': '/seo/meta-tags',
   'Sitemap': '/seo/sitemap',
-  'Vacancies': '/vacancies'
+  'Vacancies': '/vacancies',
+  'Manage': '/documents',
+  'Edit': '/footer'
 }
 
 // Функции

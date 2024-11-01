@@ -27,7 +27,8 @@
     "tinymce-vue": "^1.0.0",
     "vue": "latest",
     "vue-router": "latest",
-    "vue-tinymce-editor": "^1.6.2"
+    "vue-tinymce-editor": "^1.6.2",
+    "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
     "@nuxt/types": "^2.17.2",
