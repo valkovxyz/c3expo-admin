@@ -141,7 +141,7 @@
                   :disabled="isSaving"
               >
               <div class="w-10 h-5 bg-gray-700 rounded-full shadow-inner"></div>
-              <div class="dot absolute w-4 h-4 bg-gray-100 rounded-full shadow -left-1 top-1 transition"
+              <div class="dot absolute w-4 h-3 bg-gray-100 rounded-full shadow -left-1 top-1 transition"
                    :class="[formData.isActive ? 'transform translate-x-6 bg-teal-400' : 'bg-gray-400']">
               </div>
             </div>
