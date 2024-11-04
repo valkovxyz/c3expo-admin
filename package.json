@@ -26,8 +26,10 @@
     "tinymce": "^7.4.1",
     "tinymce-vue": "^1.0.0",
     "vue": "latest",
+    "vue-color-kit": "^1.0.6",
     "vue-router": "latest",
     "vue-tinymce-editor": "^1.6.2",
+    "vue3-colorpicker": "^2.3.0",
     "vuedraggable": "^4.1.0"
   },
   "devDependencies": {

@@ -1,5 +1,5 @@
 <template>
-  <div class="topic-editor space-y-4 bg-gray-900 p-6  border border-gray-800">
+  <div class="topic-editor space-y-4 bg-gray-900 p-6 border border-gray-800">
     <!-- Header Section -->
     <div class="editor-header mb-6">
       <h2 class="text-xl font-semibold text-teal-400 flex items-center mb-4">
@@ -19,34 +19,27 @@
     </div>
 
     <!-- Editor Section -->
-    <div class="editor-section">
+    <div class="editor-section relative">
       <ClientOnly>
         <QuillEditor
             ref="editor"
             v-model:content="localContent"
             contentType="html"
             theme="snow"
-            :toolbar="
-                ['bold', 'italic', 'underline', 'strike', {'color': ['#36e4da', '#FFFFFF', '#000000', '#e60000', '#ff9900', '#ffff00', '#008a00', '#0066cc', '#9933ff', '#ffa500', '#38bdf8', '#ff66cc', '#c0c0c0']}, {'background': []}, { 'script': 'sub'}, { 'script': 'super' }]"
+            :options="editorOptions"
             class="bg-gray-800 text-gray-100 editor-large-text"
             @update:content="handleEditorContentUpdate"
-            :options="{
-            placeholder: 'Start writing your topic content...',
-            theme: 'bubble',
-            modules: {
-              toolbar: [
-                ['blockquote', 'code-block'],
-                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                [{ 'script': 'sub'}, { 'script': 'super' }],
-                [{ 'indent': '-1'}, { 'indent': '+1' }],
-                [{ 'direction': 'rtl' }],
-                [{ 'font': [] }],
-                [{ 'align': [] }]
-              ]
-            }
-          }"
         />
       </ClientOnly>
+
+      <!-- Color Picker -->
+      <QuillColorPicker
+          v-if="showColorPicker"
+          :initial-color="currentColor"
+          @change="handleColorSelection"
+          @close="handleColorPickerClose"
+          :style="colorPickerStyle"
+      />
     </div>
 
     <!-- Unsaved Changes Indicator -->
@@ -58,9 +51,11 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick } from 'vue'
+import { ref, watch, nextTick, onMounted } from 'vue'
 import { QuillEditor } from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
+import QuillColorPicker from './QuillColorPicker.vue'
+import 'vue-color-kit/dist/vue-color-kit.css'
 
 const props = defineProps({
   modelValue: {
@@ -73,15 +68,93 @@ const props = defineProps({
   }
 })
 
-const isLoading = ref(false)
-
 const emit = defineEmits(['update:modelValue'])
 
+const editor = ref(null)
+const isLoading = ref(false)
 const localTitle = ref('')
 const localContent = ref('')
 const hasUnsavedChanges = ref(false)
-const editor = ref(null)
 const isInternalUpdate = ref(false)
+const showColorPicker = ref(false)
+const currentColor = ref('#000000')
+const colorPickerStyle = ref({})
+
+// Конфигурация редактора с настроенными шрифтами
+const editorOptions = {
+  theme: 'snow',
+  modules: {
+    toolbar: [
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'color': [] }],
+      [{ 'script': 'sub'}, { 'script': 'super' }],
+      ['blockquote', 'code-block'],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ 'font': [
+          'system-ui',
+          'century-gothic',
+          'montserrat'
+        ]}],
+      [{ 'align': [] }]
+    ]
+  },
+  placeholder: 'Start writing your topic content...'
+}
+
+const setupColorButton = () => {
+  nextTick(() => {
+    const colorButton = document.querySelector('.ql-color')
+    if (colorButton) {
+      colorButton.addEventListener('click', handleColorButtonClick)
+    }
+  })
+}
+
+const handleColorPickerClose = () => {
+  showColorPicker.value = false
+}
+
+const handleColorButtonClick = (e) => {
+  e.preventDefault()
+  e.stopPropagation()
+
+  if (editor.value) {
+    const quill = editor.value.getQuill()
+    const range = quill.getSelection()
+
+    if (range) {
+      const format = quill.getFormat(range)
+      const selectedColor = format.color || '#000000'
+      currentColor.value = selectedColor
+
+      const rect = e.target.getBoundingClientRect()
+      colorPickerStyle.value = {
+        position: 'absolute',
+        top: `${rect.height + 5}px`,
+        left: '0px',
+        zIndex: 1000
+      }
+
+      showColorPicker.value = true
+    }
+  }
+}
+
+const handleColorSelection = (color) => {
+  if (editor.value) {
+    const quill = editor.value.getQuill()
+    const range = quill.getSelection(true)
+
+    if (range) {
+      if (range.length === 0) {
+        quill.format('color', color)
+      } else {
+        quill.formatText(range.index, range.length, 'color', color)
+      }
+    }
+  }
+  hasUnsavedChanges.value = true
+}
 
 const updateContent = () => {
   hasUnsavedChanges.value = true
@@ -138,13 +211,33 @@ const updateEditorContent = async () => {
       }
     } finally {
       isInternalUpdate.value = false
-      // Добавляем небольшую задержку для плавности
       setTimeout(() => {
         isLoading.value = false
       }, 300)
     }
   }
 }
+
+// Инициализация редактора и регистрация форматов шрифтов
+onMounted(() => {
+  setupColorButton()
+  nextTick(() => {
+    if (editor.value) {
+      const Quill = editor.value.getQuill().constructor
+
+      // Регистрация форматов шрифтов
+      const Font = Quill.import('formats/font')
+      Font.whitelist = ['century-gothic', 'montserrat', 'system-ui'] // Разрешенные значения для шрифтов
+      Quill.register(Font, true)
+
+      // Инициализация Quill
+      const quill = editor.value.getQuill()
+      quill.getModule('toolbar').addHandler('font', (value) => {
+        quill.format('font', value)
+      })
+    }
+  })
+})
 
 watch(() => props.modelValue, async (newValue, oldValue) => {
   if (newValue && (!oldValue ||
@@ -153,7 +246,7 @@ watch(() => props.modelValue, async (newValue, oldValue) => {
     await updateEditorContent()
     hasUnsavedChanges.value = false
   }
-}, { deep: true })
+}, {deep: true})
 
 watch(() => props.language, async () => {
   await updateEditorContent()
@@ -168,6 +261,18 @@ defineExpose({
 </script>
 
 <style>
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+@font-face {
+  font-family: 'Century Gothic';
+  src: url('/assets/fonts/centurygothic.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+
+
 /* Custom dark theme styles for Quill editor */
 :root {
   --editor-bg: #1a1e2b;
@@ -179,6 +284,7 @@ defineExpose({
   --editor-accent: #2dd4bf;
 }
 
+/* Основные стили редактора */
 .ql-toolbar.ql-snow {
   border-color: var(--editor-border);
   background-color: var(--editor-toolbar-bg);
@@ -196,29 +302,45 @@ defineExpose({
   color: var(--editor-text);
 }
 
-
 .ql-editor.ql-blank::before {
   color: var(--editor-placeholder);
   font-style: normal;
 }
 
-/* Toolbar button styles */
-.ql-snow .ql-stroke {
-  stroke: var(--editor-text);
+/* Стили для шрифтов в редакторе */
+.ql-snow .ql-picker.ql-font {
+  width: 150px;
 }
 
-.ql-snow .ql-fill,
-.ql-snow .ql-stroke.ql-fill {
-  fill: var(--editor-text);
+.ql-font-century-gothic {
+  font-family: 'Century Gothic', sans-serif;
 }
 
-.ql-snow .ql-picker {
-  color: var(--editor-text);
+.ql-font-montserrat {
+  font-family: 'Montserrat', sans-serif;
 }
 
-.ql-snow .ql-picker-options {
-  background-color: var(--editor-toolbar-bg);
-  border-color: var(--editor-border) !important;
+.ql-font-system-ui {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+/* Стили для выпадающего списка шрифтов */
+.ql-snow .ql-picker.ql-font .ql-picker-label::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item::before {
+  content: 'System UI';
+  font-family: system-ui;
+}
+
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value='century-gothic']::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value='century-gothic']::before {
+  content: 'Century Gothic';
+  font-family: 'Century Gothic';
+}
+
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value='montserrat']::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value='montserrat']::before {
+  content: 'Montserrat';
+  font-family: 'Montserrat';
 }
 
 /* Tooltip styles */
@@ -285,5 +407,52 @@ defineExpose({
   padding: 20px;
 }
 
+/* Color Picker specific styles */
+.ql-color {
+  width: 28px !important;
+  height: 24px !important;
+  position: relative;
+}
 
+.ql-picker.ql-color {
+  width: 28px !important;
+}
+
+.ql-picker.ql-color .ql-picker-label {
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.ql-picker.ql-color .ql-picker-label::before {
+  content: '' !important;
+  width: 16px !important;
+  height: 16px !important;
+  border: 1px solid var(--editor-border) !important;
+  border-radius: 2px !important;
+  margin: 0 !important;
+  background-color: currentColor !important;
+}
+
+.ql-picker.ql-color .ql-picker-options {
+  display: none !important;
+}
+
+
+/* Скрываем стандартный picker */
+.ql-color .ql-picker-options {
+  display: none !important;
+}
+
+.color-picker-container {
+  position: absolute;
+  background: var(--editor-bg);
+  border: 1px solid var(--editor-border);
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
 </style>

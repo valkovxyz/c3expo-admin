@@ -94,7 +94,13 @@
             <div class="grid grid-cols-12 items-center">
               <div class="col-span-5 flex items-center">
                 <i :class="getFileIcon(file.contentType)" class="mr-3 text-gray-400"></i>
-                <span class="text-gray-200 truncate">{{ getFileName(file.pathname) }}</span>
+                <a
+                    @click="openFile(file)"
+                    class="text-gray-200 hover:text-teal-400 cursor-pointer truncate transition-colors duration-200"
+                    :title="getFileName(file.pathname)"
+                >
+                  {{ getFileName(file.pathname) }}
+                </a>
               </div>
               <div class="col-span-3 text-gray-400">
                 {{ file.contentType }}
@@ -142,6 +148,7 @@
     </template>
   </div>
 </template>
+
 <script setup>
 import { ref, onMounted } from 'vue'
 import LoadingSpinner from '~/components/ui/loading-spinner.vue'
@@ -337,6 +344,12 @@ const copyFileUrl = async (file) => {
     console.error('Error copying URL:', error)
     showNotificationMessage('Failed to copy URL', 'error')
   }
+}
+
+// Open file in new tab
+const openFile = (file) => {
+  if (isProcessing.value) return
+  window.open(file.url, '_blank')
 }
 
 // Download file
