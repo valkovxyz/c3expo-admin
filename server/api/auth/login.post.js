@@ -1,3 +1,4 @@
+// server/api/auth/login.post.js
 import { connectToDatabase } from '../../db/mongoose.js';
 import { User } from '../../models/User';
 import jwt from 'jsonwebtoken';
@@ -20,19 +21,21 @@ export default defineEventHandler(async (event) => {
         const config = useRuntimeConfig();
         const token = jwt.sign({ userId: user._id }, config.jwtSecret, { expiresIn: '1d' });
 
+        // Упрощенные настройки cookie для работы и на Vercel, и локально
         setCookie(event, 'dashboard_token', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 60 * 60 * 24, // 1 day
-            domain: process.env.NODE_ENV === 'production' ? '.domain.com' : undefined
+            httpOnly: false,
+            secure: true,  // всегда true для безопасности
+            sameSite: 'lax',
+            maxAge: 60 * 60 * 24, // 1 день
+            path: '/'
         });
 
         return { success: true };
     } catch (error) {
+        console.error('Login error:', error);
         throw createError({
             statusCode: 500,
-            statusMessage: 'Error logging in',
+            statusMessage: 'Invalid username or password',
         });
     }
 });

@@ -1,8 +1,8 @@
 <template>
   <div class="flex h-screen bg-gray-900 text-gray-100">
-    <TheSidebar />
+      <TheSidebar />
     <div class="flex-1 flex flex-col overflow-hidden">
-      <TheHeader />
+        <TheHeader />
       <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-800">
         <div class="h-full">
           <slot />
@@ -13,8 +13,14 @@
 </template>
 
 <script setup>
-import TheSidebar from '~/components/TheSidebar.vue'
-import TheHeader from '~/components/TheHeader.vue'
+import { defineAsyncComponent } from 'vue'
+
+const TheSidebar = defineAsyncComponent(() =>
+    import('~/components/TheSidebar.vue')
+)
+const TheHeader = defineAsyncComponent(() =>
+    import('~/components/TheHeader.vue')
+)
 </script>
 
 <style scoped>

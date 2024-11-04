@@ -1,70 +1,172 @@
 <template>
   <aside class="w-64 bg-gray-900 text-gray-100 h-screen overflow-y-auto transition-all duration-300 ease-in-out border-r border-gray-800">
+    <!-- Header -->
     <div class="h-16 px-6 border-b border-gray-800 flex items-center">
       <h1 class="text-xl font-semibold text-teal-400 flex items-center">
-        <LayoutDashboard class="w-5 h-5 mr-2" />
+        <ClientOnly>
+          <LayoutDashboard class="w-5 h-5 mr-2" />
+        </ClientOnly>
         Dashboard
       </h1>
     </div>
+
+    <!-- Navigation -->
     <nav class="mt-2">
-      <div v-for="(menu, index) in mainMenu" :key="index" class="mb-2">
+      <div v-for="(menu, index) in mainMenu" :key="menu.title" class="mb-2">
+        <!-- Menu Header -->
         <div @click="toggleDropdown(index)"
              class="flex items-center justify-between px-6 py-2 cursor-pointer hover:bg-gray-800 transition-all duration-200 ease-in-out group">
           <div class="flex items-center">
-            <component
-                :is="menu.icon"
-                class="w-5 h-5 mr-2 text-gray-400 group-hover:text-teal-400 transition-colors duration-200"
-            />
+            <ClientOnly>
+              <component
+                  :is="menu.icon"
+                  class="w-5 h-5 mr-2 text-gray-400 group-hover:text-teal-400 transition-colors duration-200"
+              />
+            </ClientOnly>
             <span class="font-medium group-hover:text-teal-400">{{ menu.title }}</span>
           </div>
-          <ChevronDown
-              class="w-4 h-4 transition-transform duration-200 text-gray-400 group-hover:text-teal-400"
-              :class="{ 'transform rotate-180': menu.isOpen }"
-          />
+          <ClientOnly>
+            <ChevronDown
+                class="w-4 h-4 transition-transform duration-200 text-gray-400 group-hover:text-teal-400"
+                :class="{ 'transform rotate-180': menu.isOpen }"
+            />
+          </ClientOnly>
         </div>
-        <transition
-            enter-active-class="transition-all duration-300 ease-out"
-            enter-from-class="opacity-0 max-h-0"
-            enter-to-class="opacity-100 max-h-[1000px]"
-            leave-active-class="transition-all duration-300 ease-in"
-            leave-from-class="opacity-100 max-h-[1000px]"
-            leave-to-class="opacity-0 max-h-0"
-        >
-          <div v-show="menu.isOpen" class="overflow-hidden">
+
+        <!-- Dropdown Content -->
+        <div v-show="menu.isOpen"
+             class="overflow-hidden transition-all duration-300"
+             :class="{'max-h-[1000px] opacity-100': menu.isOpen, 'max-h-0 opacity-0': !menu.isOpen}">
+          <div class="py-2">
+            <!-- Topics Section -->
             <template v-if="menu.title === 'Topics'">
               <NuxtLink
                   v-for="topic in topics"
                   :key="topic.name"
                   :to="`/topics/${topic.name.toLowerCase()}`"
                   class="block py-2 pl-12 pr-6 hover:bg-gray-800 transition-all duration-200 ease-in-out flex items-center group relative"
-                  :class="{
-                    'bg-gray-800 text-teal-400': isActiveRoute(`/topics/${topic.name.toLowerCase()}`),
-                    'text-gray-400 hover:text-teal-400': !isActiveRoute(`/topics/${topic.name.toLowerCase()}`)
-                  }"
+                  :class="getLinkClasses(`/topics/${topic.name.toLowerCase()}`)"
               >
                 <div
                     v-if="isActiveRoute(`/topics/${topic.name.toLowerCase()}`)"
                     class="absolute left-0 top-0 bottom-0 w-1 bg-teal-400"
-                ></div>
-                <component
-                    :is="getTopicIcon(topic.name)"
-                    class="w-4 h-4 mr-2 text-current"
                 />
+                <ClientOnly>
+                  <component
+                      :is="getTopicIcon(topic.name)"
+                      class="w-4 h-4 mr-2 text-current"
+                  />
+                </ClientOnly>
                 <span class="truncate">{{ formatTopicName(topic.name) }}</span>
               </NuxtLink>
             </template>
-            <template v-else>
-              <div v-for="item in menu.items" :key="item"
-                   class="py-2 pl-12 pr-6 hover:bg-gray-800 transition-all duration-200 ease-in-out cursor-pointer flex items-center text-gray-400 hover:text-teal-400">
-                <component
-                    :is="getMenuItemIcon(item)"
-                    class="w-4 h-4 mr-2"
+
+            <!-- Documents Section -->
+            <template v-else-if="menu.title === 'Documents'">
+              <NuxtLink
+                  v-for="item in menu.items"
+                  :key="item"
+                  :to="getItemRoute(item)"
+                  class="block py-2 pl-12 pr-6 hover:bg-gray-800 transition-all duration-200 ease-in-out flex items-center relative"
+                  :class="getLinkClasses(getItemRoute(item))"
+              >
+                <div
+                    v-if="isActiveRoute(getItemRoute(item))"
+                    class="absolute left-0 top-0 bottom-0 w-1 bg-teal-400"
                 />
-                {{ item }}
-              </div>
+                <ClientOnly>
+                  <component
+                      :is="getMenuItemIcon(item)"
+                      class="w-4 h-4 mr-2 text-current"
+                  />
+                </ClientOnly>
+                <span class="truncate">{{ item }}</span>
+              </NuxtLink>
+            </template>
+
+            <!-- Files Section -->
+            <template v-else-if="menu.title === 'Files'">
+              <NuxtLink
+                  to="/files"
+                  class="block py-2 pl-12 pr-6 hover:bg-gray-800 transition-all duration-200 ease-in-out flex items-center relative"
+                  :class="getLinkClasses('/files')"
+              >
+                <div
+                    v-if="isActiveRoute('/files')"
+                    class="absolute left-0 top-0 bottom-0 w-1 bg-teal-400"
+                />
+                <ClientOnly>
+                  <Settings class="w-4 h-4 mr-2 text-current" />
+                </ClientOnly>
+                <span class="truncate">Manage</span>
+              </NuxtLink>
+            </template>
+
+            <!-- Jobs Section -->
+            <template v-else-if="menu.title === 'Jobs'">
+              <NuxtLink
+                  to="/vacancies"
+                  class="block py-2 pl-12 pr-6 hover:bg-gray-800 transition-all duration-200 ease-in-out flex items-center relative"
+                  :class="getLinkClasses('/vacancies')"
+              >
+                <div
+                    v-if="isActiveRoute('/vacancies')"
+                    class="absolute left-0 top-0 bottom-0 w-1 bg-teal-400"
+                />
+                <ClientOnly>
+                  <Briefcase class="w-4 h-4 mr-2 text-current" />
+                </ClientOnly>
+                <span class="truncate">Vacancies</span>
+              </NuxtLink>
+            </template>
+
+            <!-- SEO Section -->
+            <template v-else-if="menu.title === 'SEO'">
+              <NuxtLink
+                  v-for="item in menu.items"
+                  :key="item"
+                  :to="getItemRoute(item)"
+                  class="block py-2 pl-12 pr-6 hover:bg-gray-800 transition-all duration-200 ease-in-out flex items-center relative"
+                  :class="getLinkClasses(getItemRoute(item))"
+              >
+                <div
+                    v-if="isActiveRoute(getItemRoute(item))"
+                    class="absolute left-0 top-0 bottom-0 w-1 bg-teal-400"
+                />
+                <ClientOnly>
+                  <component
+                      :is="getMenuItemIcon(item)"
+                      class="w-4 h-4 mr-2 text-current"
+                  />
+                </ClientOnly>
+                <span class="truncate">{{ item }}</span>
+              </NuxtLink>
+            </template>
+
+            <!-- Default Section -->
+            <template v-else>
+              <NuxtLink
+                  v-for="item in menu.items"
+                  :key="item"
+                  :to="getItemRoute(item)"
+                  class="block py-2 pl-12 pr-6 hover:bg-gray-800 transition-all duration-200 ease-in-out flex items-center relative"
+                  :class="getLinkClasses(getItemRoute(item))"
+              >
+                <div
+                    v-if="isActiveRoute(getItemRoute(item))"
+                    class="absolute left-0 top-0 bottom-0 w-1 bg-teal-400"
+                />
+                <ClientOnly>
+                  <component
+                      :is="getMenuItemIcon(item)"
+                      class="w-4 h-4 mr-2 text-current"
+                  />
+                </ClientOnly>
+                <span class="truncate">{{ item }}</span>
+              </NuxtLink>
             </template>
           </div>
-        </transition>
+        </div>
       </div>
     </nav>
   </aside>
@@ -75,7 +177,6 @@ import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import {
   LayoutDashboard,
-  Handshake,
   BookOpen,
   FileText,
   Search,
@@ -87,23 +188,20 @@ import {
   Globe2,
   Store,
   Quote,
-  FileUp,
   Settings,
   Tags,
   Map,
   Briefcase,
-  ChevronDown
+  ChevronDown,
+  Handshake,
+  NotebookTabs,
+  Paperclip
 } from 'lucide-vue-next'
 
 const route = useRoute()
 
+// Главное меню
 const mainMenu = ref([
-  {
-    title: 'Jobs',
-    isOpen: false,
-    items: ['Vacancies'],
-    icon: Handshake
-  },
   {
     title: 'Topics',
     isOpen: true,
@@ -111,10 +209,26 @@ const mainMenu = ref([
     icon: BookOpen
   },
   {
+    title: 'Jobs',
+    isOpen: false,
+    icon: Handshake
+  },
+  {
     title: 'Documents',
     isOpen: false,
-    items: ['Upload', 'Manage'],
+    items: ['Manage'],
     icon: FileText
+  },
+  {
+    title: 'Files',
+    isOpen: false,
+    icon: Paperclip
+  },
+  {
+    title: 'Footer',
+    isOpen: false,
+    items: ['Edit'],
+    icon: NotebookTabs
   },
   {
     title: 'SEO',
@@ -124,6 +238,7 @@ const mainMenu = ref([
   }
 ])
 
+// Топики
 const topics = ref([
   { name: 'our-mission' },
   { name: 'our-vision' },
@@ -135,37 +250,38 @@ const topics = ref([
   { name: 'references' }
 ])
 
-// Функция для получения иконки топика
-const getTopicIcon = (topicName) => {
-  const iconMap = {
-    'our-mission': Target,
-    'our-vision': Eye,
-    'heritage': Building2,
-    'ceo-statement': UserCircle2,
-    'our-expertise': Brain,
-    'world-wide-network': Globe2,
-    'exhibition-booth': Store,
-    'references': Quote,
-    'default': FileText
-  }
-
-  return iconMap[topicName] || iconMap.default
+// Маппинг иконок для топиков
+const topicIcons = {
+  'our-mission': Target,
+  'our-vision': Eye,
+  'heritage': Building2,
+  'ceo-statement': UserCircle2,
+  'our-expertise': Brain,
+  'world-wide-network': Globe2,
+  'exhibition-booth': Store,
+  'references': Quote,
+  'default': FileText
 }
 
-// Функция для получения иконки пункта меню
-const getMenuItemIcon = (item) => {
-  const iconMap = {
-    'Upload': FileUp,
-    'Manage': Settings,
-    'Meta Tags': Tags,
-    'Sitemap': Map,
-    'Vacancies': Briefcase,
-    'default': FileText
-  }
-
-  return iconMap[item] || iconMap.default
+// Маппинг иконок для пунктов меню
+const menuItemIcons = {
+  'Manage': Settings,
+  'Meta Tags': Tags,
+  'Sitemap': Map,
+  'Vacancies': Briefcase,
+  'default': FileText
 }
 
+// Маппинг маршрутов для пунктов меню
+const itemRoutes = {
+  'Meta Tags': '/seo/meta-tags',
+  'Sitemap': '/seo/sitemap',
+  'Vacancies': '/vacancies',
+  'Manage': '/documents',
+  'Edit': '/footer'
+}
+
+// Функции
 const toggleDropdown = (index) => {
   mainMenu.value[index].isOpen = !mainMenu.value[index].isOpen
 }
@@ -174,7 +290,27 @@ const formatTopicName = (name) => {
   return name.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
 }
 
+const getTopicIcon = (topicName) => {
+  return topicIcons[topicName] || topicIcons.default
+}
+
+const getMenuItemIcon = (item) => {
+  return menuItemIcons[item] || menuItemIcons.default
+}
+
+const getItemRoute = (item) => {
+  return itemRoutes[item] || `/${item.toLowerCase()}`
+}
+
 const isActiveRoute = (path) => {
   return route.path === path
+}
+
+const getLinkClasses = (path) => {
+  const isActive = isActiveRoute(path)
+  return {
+    'bg-gray-800 text-teal-400': isActive,
+    'text-gray-400 hover:text-teal-400': !isActive
+  }
 }
 </script>

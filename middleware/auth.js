@@ -1,16 +1,21 @@
+// middleware/auth.js
 export default defineNuxtRouteMiddleware((to) => {
-    // Выполняем проверку только на клиенте
-    if (process.client) {
-        const token = localStorage.getItem('dashboard_token')
+    const token = useCookie('dashboard_token', {
+        httpOnly: false,
+        secure: true,
+        sameSite: 'lax',
+        path: '/'
+    })
 
-        // Если нет токена и пытаемся получить доступ к защищенному маршруту
-        if (!token && to.path !== '/login') {
-            return navigateTo('/login')
-        }
+    const isLoginPage = to.path === '/login'
 
-        // Если есть токен и пытаемся получить доступ к странице входа
-        if (token && to.path === '/login') {
-            return navigateTo('/')
-        }
+    // Если есть токен и это страница логина - редирект на главную
+    if (token.value && isLoginPage) {
+        return navigateTo('/')
+    }
+
+    // Если нет токена и это не страница логина - редирект на логин
+    if (!token.value && !isLoginPage) {
+        return navigateTo('/login')
     }
 })
